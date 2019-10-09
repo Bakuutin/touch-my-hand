@@ -1,40 +1,45 @@
 <html>
-  <head>
-    <title>My Networked-Aframe Scene</title>
-    <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
-    <script src="easyrtc/easyrtc.js"></script>
-    <script src="https://unpkg.com/networked-aframe/dist/networked-aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
-  </head>
-  <body style="background-color: black">
-    <a-scene networked-scene>
-      <a-assets>
-         <template id="head-template">
-            <a-box color="yellow" scale=".4 .4 .4"></a-box>
-         </template>
-         <template id="left-hand-template">
-            <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
-         </template>
-         <template id="right-hand-template">
-            <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
-         </template>
-      </a-assets>
-      <a-entity environment="preset: tron; ground: none"></a-entity>
-      <a-entity id="player">
 
-        <a-entity camera wasd-controls="fly: true" look-controls networked="template:#head-template;attachTemplateToLocal:false;"></a-entity>
-        <a-entity hand-controls="left" networked="template:#left-hand-template">
-            <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
-        </a-entity>
-        <a-entity hand-controls="right" networked="template:#right-hand-template">
-            <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
-        </a-entity>
+<head>
+  <title>My Networked-Aframe Scene</title>
+  <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+  <script src="easyrtc/easyrtc.js"></script>
+  <script src="https://unpkg.com/networked-aframe/dist/networked-aframe.min.js"></script>
+  <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
+</head>
+
+<body style="background-color: black">
+  <a-scene networked-scene>
+    <a-assets>
+      <template id="head-template">
+        <a-box color="yellow" scale=".4 .4 .4"></a-box>
+      </template>
+      <template id="left-hand-template">
+        <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
+      </template>
+      <template id="right-hand-template">
+        <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
+      </template>
+    </a-assets>
+    <a-entity environment="preset: tron; ground: none"></a-entity>
+    <a-entity id="player">
+
+      <a-entity camera wasd-controls="fly: true" look-controls
+        networked="template:#head-template;attachTemplateToLocal:false;"></a-entity>
+      <a-entity hand-controls="left" networked="template:#left-hand-template">
+        <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
+      </a-entity>
+      <a-entity hand-controls="right" networked="template:#right-hand-template">
+        <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
+      </a-entity>
     </a-entity>
     <a-box width=".9" depth=".05" height="2" position="0 1 0"></a-box>
-    <a-box height=".05" position="2 0 -2" material="" color="green" geometry="width:5;depth:4"></a-box>    </a-scene>
-    <script>
+    <a-box height=".05" position="2 0 -2" material="" color="green" geometry="width:5;depth:4"></a-box>
+  </a-scene>
+  <script>
 
-    </script>
-  </body>
+  </script>
+</body>
+
 </html>
