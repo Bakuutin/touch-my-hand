@@ -11,6 +11,35 @@
 
 <body style="background-color: black">
   <script>
+      const round = (num, pres) => Math.round(num * pres) / pres;
+
+      AFRAME.registerComponent('show-parent-rot', {
+        tick() {
+          const rotation = new THREE.Euler();
+          this.el.parentEl.object3D.getWorldRotation(rotation);
+          AFRAME.utils.entity.setComponentProperty(
+            this.el,
+            'value',
+            round(rotation.y, 1000),
+          );
+        },
+      });
+
+      AFRAME.registerComponent('shift', {
+        schema: {
+          rotation: {type: 'number', default: 0},
+        },
+      });
+
+      NAF.schemas.add({
+        template: '#player-template',
+        components: [
+          'position',
+          'rotation',
+          'shift',
+        ]
+      });
+
       AFRAME.registerComponent('rotate-world', {
         init() {
           this.el.addEventListener('abuttondown', () => {
@@ -18,32 +47,41 @@
           });
         },
         rotate() {
-          const world = document.getElementById('world');
+          const container = document.getElementById('player-container');
+          const player = document.getElementById('player');
           const head = document.getElementById('head');
           const x = head.object3D.position.x;
           const z = head.object3D.position.z;
+          const angle = Math.atan2(z, x) + Math.PI / 2;
+
+          /* AFRAME.utils.entity.setComponentProperty(
+            player,
+            'shift.rotation',
+            angle,
+          ); */
 
           world.object3D.rotation.set(
             0,
-            Math.atan2(x, z) - Math.PI * 3,
+            angle,
             0,
           );
         },
       });
-
-      AFRAME.registerComponent('x-button-listener', {
-        init: function () {
-          var el = this.el;
-          el.addEventListener('xbuttondown', function (evt) {
-            el.setAttribute('visible', !el.getAttribute('visible'));
-          });
-        }
-      });
+      // setInterval(() => {
+      //  document.querySelectorAll('a-scene > [networked]').forEach(e => {
+      //    console.log(e)
+      //  });
+      // }, 1000);
     </script>
   <a-scene networked-scene animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
     <a-assets>
+      <template id="player-template">
+        <a-entity></a-entity>
+      </template>
       <template id="head-template">
-        <a-box color="yellow" scale=".4 .4 .4"></a-box>
+        <a-box color="yellow" scale=".4 .4 .4">
+          <a-text position="0 1 0" show-parent-rot></a-text>
+        </a-box>
       </template>
       <template id="left-hand-template">
         <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
@@ -53,19 +91,25 @@
       </template>
     </a-assets>
     <a-entity environment="preset: tron; ground: none"></a-entity>
-    <a-entity id="player">
 
-      <a-entity camera id="head" wasd-controls="fly: true" look-controls
-        networked="template:#head-template;attachTemplateToLocal:false;"></a-entity>
-      <a-entity oculus-touch-controls="hand: left" rotate-world networked="template:#left-hand-template">
-        <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
-      </a-entity>
-      <a-entity oculus-touch-controls="hand: right" rotate-world networked="template:#right-hand-template">
-        <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
+    <a-entity id="player-container">
+      <a-entity id="player" shift="rotation: 0" networked="template:#player-template;attachTemplateToLocal:false;">
+        <a-entity camera id="head" wasd-controls="fly: true" look-controls
+          networked="template:#head-template;attachTemplateToLocal:false;">
+          <a-text position="0 1 -3" show-parent-rot></a-text>
+        </a-entity>
+        <a-entity oculus-touch-controls="hand: left" rotate-world networked="template:#left-hand-template">
+          <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
+        </a-entity>
+        <a-entity oculus-touch-controls="hand: right" rotate-world networked="template:#right-hand-template">
+          <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
+        </a-entity>
       </a-entity>
     </a-entity>
+
     <a-entity id="world">
         <a-box height=".05" position="-11 0 -25.5" material="" color="green" geometry="width:22;depth:51"></a-box>
+        <a-box height="50" position="0 25 -50" color="black" geometry="width:.1;depth:.1"></a-box>
     </a-entity>
 
     <a-entity position="0 -1 0" visible="false">
