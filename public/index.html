@@ -13,14 +13,14 @@
   <script>
       const round = (num, pres) => Math.round(num * pres) / pres;
 
-      AFRAME.registerComponent('show-parent-rot', {
+      AFRAME.registerComponent('show-parent-loc', {
         tick() {
-          const rotation = new THREE.Euler();
-          this.el.parentEl.object3D.getWorldRotation(rotation);
+          const location = new THREE.Vector3();
+          this.el.parentEl.object3D.getWorldPosition(location);
           AFRAME.utils.entity.setComponentProperty(
             this.el,
             'value',
-            round(rotation.y, 1000),
+            round(location.x, 10) + ' ' + round(location.z, 10)
           );
         },
       });
@@ -31,15 +31,6 @@
         },
       });
 
-      NAF.schemas.add({
-        template: '#player-template',
-        components: [
-          'position',
-          'rotation',
-          'shift',
-        ]
-      });
-
       AFRAME.registerComponent('rotate-world', {
         init() {
           this.el.addEventListener('abuttondown', () => {
@@ -47,18 +38,16 @@
           });
         },
         rotate() {
-          const container = document.getElementById('player-container');
-          const player = document.getElementById('player');
           const head = document.getElementById('head');
           const x = head.object3D.position.x;
           const z = head.object3D.position.z;
-          const angle = Math.atan2(z, x) + Math.PI / 2;
+          const angle = Math.atan2(x, z) + Math.PI;
 
-          /* AFRAME.utils.entity.setComponentProperty(
-            player,
+          AFRAME.utils.entity.setComponentProperty(
+            head.parentEl,
             'shift.rotation',
             angle,
-          ); */
+          );
 
           world.object3D.rotation.set(
             0,
@@ -67,20 +56,41 @@
           );
         },
       });
-      // setInterval(() => {
-      //  document.querySelectorAll('a-scene > [networked]').forEach(e => {
-      //    console.log(e)
-      //  });
-      // }, 1000);
+
+      const updateOthers = () => {
+        const othersContainer = document.getElementById('others-container');
+
+        Array.from(document.querySelectorAll('a-scene > a-entity[networked]')).map(e => {
+          const shift = e.components.shift;
+          if (!shift || !shift.data.rotation) {
+            return;
+          }
+
+          console.log(shift.data.rotation);
+          remoteParent = document.createElement('a-entity');
+          othersContainer.appendChild(remoteParent);
+          remoteParent.appendChild(e);
+          setTimeout(() => {
+            remoteParent.object3D.rotation.set(
+              0,
+              -shift.data.rotation,
+              0,
+            );
+          }, 1000);
+
+        });
+      }
+
+      setInterval(updateOthers, 1000);
     </script>
   <a-scene networked-scene animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
     <a-assets>
       <template id="player-template">
-        <a-entity></a-entity>
+        <a-entity shift></a-entity>
       </template>
       <template id="head-template">
-        <a-box color="yellow" scale=".4 .4 .4">
-          <a-text position="0 1 0" show-parent-rot></a-text>
+        <a-box color="yellow" class="head" scale=".4 .4 .4">
+          <a-text position="0 1 0" show-parent-loc></a-text>
         </a-box>
       </template>
       <template id="left-hand-template">
@@ -93,10 +103,10 @@
     <a-entity environment="preset: tron; ground: none"></a-entity>
 
     <a-entity id="player-container">
-      <a-entity id="player" shift="rotation: 0" networked="template:#player-template;attachTemplateToLocal:false;">
-        <a-entity camera id="head" wasd-controls="fly: true" look-controls
+      <a-entity id="player" shift networked="template:#player-template;attachTemplateToLocal:false;">
+        <a-entity camera id="head" class="head" wasd-controls="fly: true" look-controls
           networked="template:#head-template;attachTemplateToLocal:false;">
-          <a-text position="0 1 -3" show-parent-rot></a-text>
+          <a-text position="0 1 -3" show-parent-loc></a-text>
         </a-entity>
         <a-entity oculus-touch-controls="hand: left" rotate-world networked="template:#left-hand-template">
           <a-box color="yellow" height=".05" depth=".05" width=".05"></a-box>
@@ -107,7 +117,10 @@
       </a-entity>
     </a-entity>
 
+
+
     <a-entity id="world">
+        <a-entity id="others-container"></a-entity>
         <a-box height=".05" position="-11 0 -25.5" material="" color="green" geometry="width:22;depth:51"></a-box>
         <a-box height="50" position="0 25 -50" color="black" geometry="width:.1;depth:.1"></a-box>
     </a-entity>
@@ -120,6 +133,16 @@
     </a-entity>
     <!-- <a-box width=".9" depth=".05" height="2" position="0 1 0"></a-box> -->
   </a-scene>
+  <script>
+      NAF.schemas.add({
+        template: '#player-template',
+        components: [
+          'position',
+          'rotation',
+          'shift',
+        ]
+      });
+  </script>
 </body>
 
 </html>
