@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "eslint": "^4.19.1",
-    "webpack": "^1.13.0"
+    "webpack": "^5.74.0"
   },
   "keywords": [
     "3d",
